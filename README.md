@@ -10,6 +10,18 @@ NoteCoins es una demo de marketplace web donde los estudiantes pueden comprar y 
 - Historial de pedidos y previsualización de apuntes
 - Panel de administración
 
+## Usuarios de demo
+
+La base de datos se crea automáticamente al arrancar la app.
+
+| Email | Contraseña | Rol |
+|---|---|---|
+| admin@example.test | admin123 | Admin |
+| ana@example.test | ana123 | Estudiante |
+| bruno@example.test | bruno123 | Estudiante |
+| carlos@example.test | carlos123 | Estudiante |
+| laura@example.test | laura123 | Estudiante |
+
 ## Ejecución en local
 
 ```bash
