@@ -1,0 +1,29 @@
+// .vscode/settings.json
+{
+  "editor.formatOnSave": true,
+  "files.eol": "\n",
+
+  // Python formatting/lint
+  "[python]": { "editor.defaultFormatter": "ms-python.black-formatter" },
+  "black-formatter.args": ["--line-length", "88"],
+  "isort.args": ["--profile", "black"],
+
+  // Frontend formatting
+  "[javascript]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "[css]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "[html]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+
+  // Jinja templates: evitar que Prettier rompa {{ }} y {% %}
+  "files.associations": {
+    "**/templates/**/*.html": "jinja-html"
+  },
+  "[jinja-html]": {
+    "editor.defaultFormatter": "samuelcolvin.jinjahtml",
+    "editor.formatOnSave": false
+  },
+  "prettier.disableLanguages": ["jinja-html"],
+
+  // VS Code Python env handling (sin venv)
+  "python.terminal.activateEnvironment": false,
+  "python-envs.defaultEnvManager": "ms-python.python:system"
+}

@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% block title %}Mi cartera — NoteCoin{% endblock %}
+{% block content %}
+<section class="container py-5">
+    <div class="row g-4">
+
+        <!-- Wallet card -->
+        <div class="col-lg-4">
+            <div class="wallet-main-card p-4 mb-4">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <div class="wallet-label">Cartera</div>
+                        <div class="wallet-user">{{ current_user.name }}</div>
+                    </div>
+                    <div class="coin-logo-lg">◈</div>
+                </div>
+                <div class="d-flex align-items-baseline gap-2 mb-3">
+                    <span class="wallet-balance-display" id="wallet-balance-big">{{ "%.4f"|format(w_balance) }}</span>
+                    <span class="wallet-currency">NC</span>
+                </div>
+                <div class="mb-3">
+                    <div class="wallet-label mb-1">Dirección</div>
+                    <code class="text-white-50 small" style="word-break:break-all;font-size:.65rem">{{ w_addr }}</code>
+                </div>
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <span class="wallet-label">Saldo</span>
+                        <span class="wallet-label">Límite 100 NC</span>
+                    </div>
+                    <div class="progress" style="height:6px;background:rgba(255,255,255,.1)">
+                        <div class="progress-bar bg-warning" style="width:{{ [w_balance, 100]|min }}%"></div>
+                    </div>
+                </div>
+                <a href="{{ url_for('upload_note') }}" class="btn btn-warning btn-sm w-100">+ Subir apunte</a>
+            </div>
+
+            <!-- Pool info -->
+            <div class="soft-panel p-4 mb-4">
+                <h6 class="text-muted mb-2">Fondo de dividendos</h6>
+                <div class="fw-bold fs-4 text-warning" id="pool-display">{{ "%.4f"|format(pool_amount) }} ◈</div>
+                <p class="text-muted small mt-1 mb-0">5% de cada transacción se acumula aquí y se redistribuye entre todos los usuarios.</p>
+            </div>
+
+            <!-- My notes -->
+            {% if my_notes %}
+            <div class="soft-panel p-4">
+                <h6 class="text-muted mb-3">Mis apuntes ({{ my_notes|length }})</h6>
+                {% for n in my_notes %}
+                <a href="{{ url_for('note_detail', note_id=n.id) }}" class="d-block text-decoration-none mb-2">
+                    <div class="d-flex justify-content-between align-items-center p-2 rounded" style="background:#f8fafc;border:1px solid #e5e7eb">
+                        <span class="small fw-semibold text-dark">{{ n.title[:35] }}{% if n.title|length > 35 %}…{% endif %}</span>
+                        <span class="badge bg-primary text-white" style="font-size:.65rem">{{ n.price }} ◈</span>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Transactions -->
+        <div class="col-lg-8">
+            <div class="soft-panel p-4">
+                <h5 class="mb-4">Historial de transacciones</h5>
+                {% if transactions %}
+                <div class="tx-list">
+                    {% for tx in transactions %}
+                    {% set is_in = tx.to_wallet == w_addr %}
+                    <div class="tx-item {% if tx.tx_type == 'coinbase' %}tx-in{% elif is_in %}tx-in{% else %}tx-out{% endif %}">
+                        <div class="d-flex justify-content-between align-items-start mb-1">
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="tx-direction">{% if is_in or tx.tx_type == 'coinbase' %}↓{% else %}↑{% endif %}</span>
+                                <span class="tx-type-badge tx-type-{{ tx.tx_type }}">{{ tx.tx_type }}</span>
+                            </div>
+                            <span class="fw-bold {% if is_in or tx.tx_type in ['coinbase','dividend'] %}text-success{% else %}text-danger{% endif %}">
+                                {% if is_in or tx.tx_type in ['coinbase','dividend'] %}+{% else %}−{% endif %}{{ "%.4f"|format(tx.amount) }} ◈
+                            </span>
+                        </div>
+                        <p class="small text-muted mb-1">{{ tx.description }}</p>
+                        <div class="tx-hash-small"><code>{{ tx.tx_hash[:24] }}…</code></div>
+                        <div class="tx-wallets mt-1">
+                            <span class="text-muted" style="font-size:.65rem;font-family:monospace">
+                                {{ tx.from_wallet[:16] }}… → {{ tx.to_wallet[:16] }}…
+                            </span>
+                        </div>
+                        <div class="text-muted" style="font-size:.7rem">{{ tx.created_at }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-muted text-center py-4">Sin transacciones todavía.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+{% block scripts %}
+<script>
+(function() {
+    function refresh() {
+        fetch('/api/wallet')
+            .then(function(r){ return r.json(); })
+            .then(function(data){
+                if (data.balance !== undefined) {
+                    var el = document.getElementById('wallet-balance-big');
+                    if (el) el.textContent = data.balance.toFixed(4);
+                }
+            })
+            .catch(function(){});
+        fetch('/api/pool')
+            .then(function(r){ return r.json(); })
+            .then(function(data){
+                if (data.pool !== undefined) {
+                    var el = document.getElementById('pool-display');
+                    if (el) el.textContent = data.pool.toFixed(4) + ' ◈';
+                }
+            })
+            .catch(function(){});
+    }
+    setInterval(refresh, 3000);
+})();
+</script>
+{% endblock %}

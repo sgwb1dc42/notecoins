@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% block title %}Admin — NoteCoin{% endblock %}
+{% block content %}
+<div class="container py-5">
+    <h1 class="h3 fw-bold mb-4">Panel de Administración</h1>
+
+    <div class="row g-4 mb-4">
+        <!-- Pool + distribute -->
+        <div class="col-md-4">
+            <div class="soft-panel p-4 text-center">
+                <h5 class="text-muted small text-uppercase mb-2">Fondo de Dividendos</h5>
+                <div class="fw-black text-warning fs-2 mb-1" id="pool-val">{{ "%.4f"|format(pool_amount) }} ◈</div>
+                <p class="text-muted small mb-3">Acumulado del 5% de cada transacción</p>
+                <button class="btn btn-warning w-100" id="distribute-btn">
+                    Distribuir entre todos
+                </button>
+                <div id="distribute-result" class="mt-3 small"></div>
+            </div>
+        </div>
+
+        <!-- Wallets stats -->
+        <div class="col-md-8">
+            <div class="soft-panel p-4">
+                <h5 class="mb-3">Wallets activas</h5>
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Usuario</th>
+                                <th>Dirección</th>
+                                <th class="text-end">Saldo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for w in wallets %}
+                            <tr>
+                                <td>
+                                    <strong>{{ w.name }}</strong>
+                                    <br><small class="text-muted">{{ w.email }}</small>
+                                </td>
+                                <td><code class="small">{{ w.address[:20] }}…</code></td>
+                                <td class="text-end fw-bold text-warning">{{ "%.4f"|format(w.balance) }} ◈</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Transactions log -->
+    <div class="soft-panel p-4">
+        <h5 class="mb-3">Últimas transacciones</h5>
+        <div class="table-responsive">
+            <table class="table table-sm table-hover">
+                <thead>
+                    <tr>
+                        <th>Hash</th>
+                        <th>Tipo</th>
+                        <th>De</th>
+                        <th>A</th>
+                        <th class="text-end">Importe</th>
+                        <th class="text-end">Fee</th>
+                        <th>Fecha</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for tx in transactions %}
+                    <tr>
+                        <td><code class="small">{{ tx.tx_hash[:12] }}…</code></td>
+                        <td>
+                            <span class="tx-type-badge tx-type-{{ tx.tx_type }}">
+                                {{ tx.tx_type }}
+                            </span>
+                        </td>
+                        <td><code class="small">{{ tx.from_wallet[:14] }}…</code></td>
+                        <td><code class="small">{{ tx.to_wallet[:14] }}…</code></td>
+                        <td class="text-end text-warning fw-bold">{{ "%.4f"|format(tx.amount) }} ◈</td>
+                        <td class="text-end text-muted small">{% if tx.fee %}{{ "%.4f"|format(tx.fee) }}{% else %}—{% endif %}</td>
+                        <td class="text-muted small">{{ tx.created_at[11:19] }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+document.getElementById('distribute-btn').addEventListener('click', function() {
+    this.disabled = true;
+    this.textContent = 'Distribuyendo…';
+    var btn = this;
+    fetch('/api/distribute-dividend', {method: 'POST'})
+        .then(function(r){ return r.json(); })
+        .then(function(data) {
+            var res = document.getElementById('distribute-result');
+            if (data.error) {
+                res.innerHTML = '<span class="text-danger">' + data.error + '</span>';
+                btn.disabled = false;
+                btn.textContent = 'Distribuir entre todos';
+            } else {
+                res.innerHTML = '<span class="text-success">Distribuido ' + data.share_per_wallet.toFixed(4) + ' ◈ por wallet (' + data.wallets + ' wallets)</span>';
+                showTxToast('Dividendos distribuidos: ' + data.share_per_wallet.toFixed(4) + ' ◈ por wallet');
+                document.getElementById('pool-val').textContent = '0.0000 ◈';
+                setTimeout(function(){ location.reload(); }, 2500);
+            }
+        })
+        .catch(function() {
+            showTxToast('Error de conexión', 'danger');
+            btn.disabled = false;
+            btn.textContent = 'Distribuir entre todos';
+        });
+});
+</script>
+{% endblock %}

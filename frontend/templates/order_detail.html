@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Pedido {{ order.code }}{% endblock %}
+{% block content %}
+<section class="container py-5">
+    <div class="row g-4">
+        <div class="col-lg-4">
+            <div class="soft-panel p-4 h-100">
+                <p class="text-primary fw-semibold mb-1">Pedido</p>
+                <h1 class="h3">{{ order.code }}</h1>
+                <p class="text-muted">{{ order.status }}</p>
+                <div class="order-total">{{ "%.2f"|format(order.total) }} €</div>
+                <hr>
+                <p class="mb-1 fw-semibold">Dirección de envío</p>
+                <p class="text-muted mb-0">{{ order.shipping_address }}</p>
+            </div>
+        </div>
+        <div class="col-lg-8">
+            <div class="soft-panel p-4">
+                <h2 class="h4 mb-3">Artículos</h2>
+                <table class="table table-hover mb-0">
+                    <thead><tr><th>Producto</th><th>Cantidad</th><th>Precio</th></tr></thead>
+                    <tbody>
+                        {% for item in items %}
+                        <tr><td>{{ item.product_name }}</td><td>{{ item.quantity }}</td><td>{{ "%.2f"|format(item.price) }} €</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,26 @@
+services:
+  app:
+    image: devcontainer_flask_minimo:py312_node20_v2
+    build:
+      context: ..
+      dockerfile: .devcontainer/Dockerfile
+    volumes:
+      - ..:/workspaces/app:cached
+      - pip_cache:/root/.cache/pip
+      - npm_cache:/root/.npm
+    working_dir: /workspaces/app
+    command: sleep infinity
+    environment:
+      - TZ=Europe/Madrid
+    ports:
+      - "5000:5000"
+      - "5000:5000"
+      - "5030:5030"
+      - "5031:5031"
+      - "5032:5032"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+volumes:
+  pip_cache:
+  npm_cache:

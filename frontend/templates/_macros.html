@@ -1,0 +1,9 @@
+{% macro grade_circle(grade, large=false) %}
+{% if grade %}
+{% set g = grade|float %}
+{% if g >= 9.0 %}{% set cls = "grade-hi" %}
+{% elif g >= 7.0 %}{% set cls = "grade-mid" %}
+{% else %}{% set cls = "grade-lo" %}{% endif %}
+<span class="grade-circle {{ cls }}{% if large %} grade-lg{% endif %}" title="Nota del autor: {{ grade }}">{{ grade }}</span>
+{% endif %}
+{% endmacro %}

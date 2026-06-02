@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+{% from "_macros.html" import grade_circle %}
+{% block title %}Cuenta — NoteCoin{% endblock %}
+{% block content %}
+<section class="container py-5">
+
+    <!-- Perfil + formulario -->
+    <div class="row g-4 mb-5">
+        <div class="col-lg-5">
+            <div class="soft-panel p-4 h-100">
+                <p class="text-primary fw-semibold mb-1">Perfil</p>
+                <h1 class="h3">Datos de la cuenta</h1>
+                <ul class="list-group mt-4">
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>Usuario</span><strong>{{ current_user.name }}</strong>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>Rol</span><strong>{{ current_user.role }}</strong>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>Saldo</span>
+                        <strong><span id="account-balance">{{ "%.2f"|format(wallet_balance) }}</span> ◈</strong>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>Apuntes subidos</span><strong>{{ my_notes|length }}</strong>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>Apuntes comprados</span><strong>{{ purchased_notes|length }}</strong>
+                    </li>
+                </ul>
+                <div class="mt-3">
+                    <a class="btn btn-outline-primary w-100" href="{{ url_for('wallet_page') }}">Ver cartera completa</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-7">
+            <div class="soft-panel p-4">
+                <h2 class="h5 mb-3">Actualizar datos</h2>
+                <form method="post">
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold" for="email">Correo electrónico</label>
+                        <input class="form-control" id="email" name="email" value="{{ profile.email }}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold" for="address">Titulación</label>
+                        <input class="form-control" id="address" name="address" value="{{ profile.address }}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold" for="phone">Teléfono</label>
+                        <input class="form-control" id="phone" name="phone" value="{{ profile.phone }}">
+                    </div>
+                    <button class="btn btn-primary" type="submit">Guardar cambios</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Apuntes con toggle -->
+    <div class="soft-panel p-4">
+        <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
+            <h2 class="h5 mb-0">Mis apuntes</h2>
+            <div class="d-flex align-items-center gap-2">
+                <span class="small fw-semibold" id="toggle-label-left" style="color:var(--nc-gold)">Subidos</span>
+                <div class="form-check form-switch mb-0">
+                    <input class="form-check-input" type="checkbox" id="notes-toggle" role="switch">
+                </div>
+                <span class="small fw-semibold" id="toggle-label-right" style="color:#6c757d">Comprados</span>
+            </div>
+        </div>
+
+        <!-- Subidos -->
+        <div id="panel-uploaded">
+            {% if my_notes %}
+            <div class="row g-3">
+                {% for note in my_notes %}
+                {% set meta = subject_meta.get(note.subject, {"code":"otr","icon":"◎"}) %}
+                <div class="col-md-6 col-lg-4">
+                    <a href="{{ url_for('note_detail', note_id=note.id) }}" class="text-decoration-none" style="color:inherit">
+                        <div class="card note-card h-100 border-0 shadow-sm">
+                            <div class="note-subject-banner subject-{{ meta.code }}">{{ meta.icon }}</div>
+                            <div class="card-body">
+                                <span class="badge badge-{{ meta.code }} mb-2">{{ note.subject }}</span>
+                                <h5 class="card-title fw-bold mb-1" style="color:#1a202c">{{ note.title }}</h5>
+                                {% if note.description %}
+                                <p class="card-text text-muted small mb-2">{{ note.description[:80] }}{% if note.description|length > 80 %}…{% endif %}</p>
+                                {% endif %}
+                                <div class="seller-meta d-flex align-items-center justify-content-between mt-2">
+                                    <div class="d-flex align-items-center gap-2">
+                                        {{ grade_circle(note.grade) }}
+                                        <span class="small text-muted">{{ note.views }} visualizaciones</span>
+                                    </div>
+                                    <span class="price-badge">{{ note.price }} ◈</span>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-4 text-muted">
+                <div style="font-size:2.5rem">◎</div>
+                <p class="mt-2 small">Todavía no has subido ningún apunte.</p>
+                <a href="{{ url_for('upload_note') }}" class="btn btn-warning btn-sm fw-bold">Subir apunte</a>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Comprados -->
+        <div id="panel-purchased" style="display:none">
+            {% if purchased_notes %}
+            <div class="row g-3">
+                {% for note in purchased_notes %}
+                {% set meta = subject_meta.get(note.subject, {"code":"otr","icon":"◎"}) %}
+                <div class="col-md-6 col-lg-4">
+                    <a href="{{ url_for('note_detail', note_id=note.id) }}" class="text-decoration-none" style="color:inherit">
+                        <div class="card note-card h-100 border-0 shadow-sm">
+                            <div class="note-subject-banner subject-{{ meta.code }}">{{ meta.icon }}</div>
+                            <div class="card-body">
+                                <span class="badge badge-{{ meta.code }} mb-2">{{ note.subject }}</span>
+                                <h5 class="card-title fw-bold mb-1" style="color:#1a202c">{{ note.title }}</h5>
+                                {% if note.description %}
+                                <p class="card-text text-muted small mb-2">{{ note.description[:80] }}{% if note.description|length > 80 %}…{% endif %}</p>
+                                {% endif %}
+                                <div class="seller-meta d-flex align-items-center justify-content-between mt-2">
+                                    <span class="small text-muted fw-semibold" style="color:#4ade80">Comprado</span>
+                                    <span class="price-badge">{{ note.price }} ◈</span>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-4 text-muted">
+                <div style="font-size:2.5rem">◎</div>
+                <p class="mt-2 small">Todavía no has comprado ningún apunte.</p>
+                <a href="{{ url_for('index') }}" class="btn btn-outline-secondary btn-sm">Explorar marketplace</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function () {
+    var toggle = document.getElementById('notes-toggle');
+    var uploaded = document.getElementById('panel-uploaded');
+    var purchased = document.getElementById('panel-purchased');
+    var labelLeft = document.getElementById('toggle-label-left');
+    var labelRight = document.getElementById('toggle-label-right');
+    var gold = 'var(--nc-gold)';
+    var grey = '#6c757d';
+
+    toggle.addEventListener('change', function () {
+        if (toggle.checked) {
+            uploaded.style.display = 'none';
+            purchased.style.display = '';
+            labelLeft.style.color = grey;
+            labelRight.style.color = gold;
+        } else {
+            uploaded.style.display = '';
+            purchased.style.display = 'none';
+            labelLeft.style.color = gold;
+            labelRight.style.color = grey;
+        }
+    });
+})();
+</script>
+{% endblock %}

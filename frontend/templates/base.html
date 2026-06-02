@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <title>{% block title %}NoteCoin{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="{{ url_for('static', filename='vendor/bootstrap/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+
+<!-- Toast container -->
+<div class="position-fixed top-0 end-0 p-3" style="z-index:9999" id="toast-container"></div>
+
+<nav class="navbar navbar-expand-lg navbar-dark sticky-top" style="background:var(--nc-dark)">
+    <div class="container">
+        <a class="navbar-brand d-flex align-items-center gap-2 fw-bold" href="{{ url_for('index') }}">
+            <span class="coin-logo">N</span>
+            NoteCoin
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#main-navbar">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="main-navbar">
+            <form class="d-flex ms-lg-4 my-3 my-lg-0 flex-grow-1" action="{{ url_for('index') }}" method="get">
+                <input style="background:#2d3748;color:#e2e8f0;border-color:#4a5568;outline:none" name="q" type="search"
+                       class="form-control me-2" placeholder="Buscar apuntes..." value="{{ request.args.get('q','') }}">
+                <button class="btn btn-outline-light" type="submit">Buscar</button>
+            </form>
+            <ul class="navbar-nav ms-lg-3 align-items-lg-center gap-1">
+                {% if current_user %}
+                    <li class="nav-item me-1">
+                        <a href="{{ url_for('wallet_page') }}" class="wallet-badge text-decoration-none">
+                            <span id="wallet-amount" class="{{ 'balance-flash' if request.endpoint == 'buy_note' else '' }}">
+                                {{ "%.2f"|format(wallet_balance) }}
+                            </span>
+                            <span>◈</span>
+                            <span class="wallet-addr-short">{{ wallet_addr[:8] if wallet_addr else '' }}…</span>
+                        </a>
+                    </li>
+                    <li class="nav-item"><a class="nav-link text-white-50" href="{{ url_for('upload_note') }}">Subir</a></li>
+                    <li class="nav-item"><a class="nav-link text-white-50" href="{{ url_for('wallet_page') }}">Cartera</a></li>
+                    {% if current_user.role == 'admin' %}
+                    <li class="nav-item"><a class="nav-link text-warning" href="{{ url_for('admin') }}">Admin</a></li>
+                    {% endif %}
+                    <li class="nav-item"><a class="nav-link text-white-50" href="{{ url_for('account') }}">Cuenta</a></li>
+                    <li class="nav-item"><a class="nav-link text-white-50" href="{{ url_for('logout') }}">Salir</a></li>
+                {% else %}
+                    <li class="nav-item"><a class="btn btn-outline-warning btn-sm px-3" href="{{ url_for('login') }}">Entrar</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<main>
+    {% block content %}{% endblock %}
+</main>
+
+<footer class="border-top mt-5 py-4" style="background:var(--nc-dark); color:rgba(255,255,255,.4)">
+    <div class="container d-flex flex-column flex-md-row justify-content-between gap-2 small">
+        <span class="d-flex align-items-center gap-2">
+            <span class="coin-logo" style="width:20px;height:20px;font-size:.7rem">N</span>
+            NoteCoin
+        </span>
+        <span>Fondo de dividendos: <strong class="text-warning" id="footer-pool">{{ "%.4f"|format(pool_amount) }} ◈</strong></span>
+        <span>Apuntes universitarios tokenizados.</span>
+    </div>
+</footer>
+
+<script src="{{ url_for('static', filename='vendor/bootstrap/bootstrap.bundle.min.js') }}"></script>
+
+<script>
+function showTxToast(msg, type) {
+    type = type || 'success';
+    var bg = type === 'success' ? 'bg-success' : 'bg-danger';
+    var html = '<div class="toast align-items-center text-white ' + bg + ' border-0 show" role="alert">'
+        + '<div class="d-flex"><div class="toast-body">' + msg + '</div>'
+        + '<button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>'
+        + '</div></div>';
+    var container = document.getElementById('toast-container');
+    var el = document.createElement('div');
+    el.innerHTML = html;
+    container.appendChild(el);
+    setTimeout(function(){ el.remove(); }, 4000);
+}
+</script>
+
+{% if current_user %}
+<script>
+(function() {
+    function refresh() {
+        fetch('/api/wallet')
+            .then(function(r){ return r.json(); })
+            .then(function(data){
+                var el = document.getElementById('wallet-amount');
+                if (el && data.balance !== undefined) el.textContent = data.balance.toFixed(2);
+            })
+            .catch(function(){});
+        fetch('/api/pool')
+            .then(function(r){ return r.json(); })
+            .then(function(data){
+                var el = document.getElementById('footer-pool');
+                if (el && data.pool !== undefined) el.textContent = data.pool.toFixed(4) + ' ◈';
+            })
+            .catch(function(){});
+    }
+    setInterval(refresh, 3000);
+})();
+</script>
+{% endif %}
+
+{% block scripts %}{% endblock %}
+</body>
+</html>

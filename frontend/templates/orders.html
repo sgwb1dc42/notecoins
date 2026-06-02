@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Pedidos{% endblock %}
+{% block content %}
+<section class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <p class="text-primary fw-semibold mb-1">Área de cliente</p>
+            <h1 class="mb-0">Pedidos</h1>
+        </div>
+        <a class="btn btn-outline-primary" href="{{ url_for('index') }}">Seguir comprando</a>
+    </div>
+    <div class="soft-panel p-4">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead><tr><th>Código</th><th>Estado</th><th>Total</th><th></th></tr></thead>
+                <tbody>
+                    {% for order in orders %}
+                    <tr>
+                        <td><strong>{{ order.code }}</strong></td>
+                        <td><span class="badge text-bg-light">{{ order.status }}</span></td>
+                        <td>{{ "%.2f"|format(order.total) }} €</td>
+                        <td class="text-end"><a class="btn btn-sm btn-primary" href="{{ url_for('order_detail', order_id=order.id) }}">Ver detalle</a></td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="4" class="text-muted">No hay pedidos registrados.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+{% endblock %}

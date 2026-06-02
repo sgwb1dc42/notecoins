@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Entrar — NoteCoin{% endblock %}
+{% block content %}
+<section style="min-height:80vh;display:flex;align-items:center;background:radial-gradient(ellipse at center, #0f3460 0%, #1a1a2e 60%)">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-5 col-lg-4">
+                <div class="text-center mb-4">
+                    <div class="coin-logo mx-auto mb-3" style="width:56px;height:56px;font-size:1.5rem">N</div>
+                    <h1 class="h3 text-white fw-bold">NoteCoin</h1>
+                    <p class="text-white-50 small">Accede a tu cuenta</p>
+                </div>
+                <div class="soft-panel p-4">
+                    {% if error %}
+                    <div class="alert alert-danger alert-sm py-2 small">{{ error }}</div>
+                    {% endif %}
+                    <form method="post">
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold">Email</label>
+                            <input type="email" name="email" class="form-control" required autofocus>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label small fw-semibold">Contraseña</label>
+                            <input type="password" name="password" class="form-control" required>
+                        </div>
+                        <button type="submit" class="btn btn-warning w-100 fw-bold">Entrar</button>
+                    </form>
+                    <hr class="my-3">
+                    <p class="text-muted small text-center mb-0">
+                        Cuentas de prueba:<br>
+                        <code>ana@example.test</code> / <code>ana123</code><br>
+                        <code>bruno@example.test</code> / <code>bruno123</code><br>
+                        <code>carlos@example.test</code> / <code>carlos123</code><br>
+                        <code>laura@example.test</code> / <code>laura123</code><br>
+                        <code>pedro@example.test</code> / <code>pedro123</code><br>
+                        <code>sofia@example.test</code> / <code>sofia123</code><br>
+                        <code>admin@example.test</code> / <code>admin123</code>
+                    </p>
+                </div>
+                <p class="text-center text-white-50 small mt-3">
+                    Al entrar recibes <strong class="text-warning">3 ◈</strong> gratis en tu wallet.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

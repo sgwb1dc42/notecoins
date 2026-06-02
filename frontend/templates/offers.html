@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Ofertas{% endblock %}
+{% block content %}
+<section class="container py-5">
+    <div class="row g-4 align-items-center">
+        <div class="col-lg-7">
+            <p class="text-primary fw-semibold mb-1">Promociones</p>
+            <h1 class="display-5 mb-3">Ofertas de temporada</h1>
+            <p class="lead text-muted">Consultar descuentos activos y aplicar cupones promocionales en la compra.</p>
+            <form class="input-group mt-4" action="{{ url_for('offers') }}" method="get">
+                <input class="form-control" name="coupon" placeholder="Código de cupón">
+                <button class="btn btn-primary" type="submit">Aplicar</button>
+            </form>
+        </div>
+        <div class="col-lg-5">
+            <div class="soft-panel coupon-panel p-4">
+                <h2 class="h4">Cupón aplicado</h2>
+                <div class="alert alert-success mt-3">
+                    <span id="coupon-message">Sin cupón aplicado</span>
+                </div>
+                <p class="text-muted mb-0">El descuento se mostrará antes de confirmar el pedido.</p>
+            </div>
+        </div>
+    </div>
+</section>
+<section class="container pb-5">
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm"><div class="card-body"><span class="badge text-bg-warning mb-3">10 %</span><h2 class="h5">Accesorios</h2><p class="text-muted mb-0">Descuento en cables, adaptadores y soportes.</p></div></div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm"><div class="card-body"><span class="badge text-bg-primary mb-3">Envío</span><h2 class="h5">Pedidos superiores a 60 €</h2><p class="text-muted mb-0">Envío incluido en compras seleccionadas.</p></div></div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm"><div class="card-body"><span class="badge text-bg-success mb-3">Pack</span><h2 class="h5">Trabajo híbrido</h2><p class="text-muted mb-0">Combinaciones de webcam, auriculares y hub.</p></div></div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/offers.js') }}"></script>
+{% endblock %}

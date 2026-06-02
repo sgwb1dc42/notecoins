@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}No encontrado{% endblock %}
+{% block content %}
+<section class="container py-5">
+    <div class="soft-panel p-5 text-center">
+        <h1>No se ha encontrado el recurso solicitado</h1>
+        <p class="text-muted">Comprobar la dirección o volver al inicio.</p>
+        <a class="btn btn-primary" href="{{ url_for('index') }}">Volver al inicio</a>
+    </div>
+</section>
+{% endblock %}

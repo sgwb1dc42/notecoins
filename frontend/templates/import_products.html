@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Importar catálogo{% endblock %}
+{% block content %}
+<section class="container py-5">
+    <div class="row g-4">
+        <div class="col-lg-6">
+            <div class="soft-panel p-4 h-100">
+                <p class="text-primary fw-semibold mb-1">Catálogo</p>
+                <h1 class="h3 mb-3">Importar producto</h1>
+                <p class="text-muted">Pegar un documento XML con la información básica del producto.</p>
+                {% if message %}
+                <div class="alert alert-info">{{ message }}</div>
+                {% endif %}
+                <form method="post">
+                    <div class="mb-3">
+                        <label class="form-label" for="xml_data">Documento XML</label>
+                        <textarea class="form-control mono-box" id="xml_data" name="xml_data">{{ sample_xml }}</textarea>
+                    </div>
+                    <button class="btn btn-primary" type="submit">Procesar XML</button>
+                </form>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="soft-panel p-4 h-100">
+                <h2 class="h4 mb-3">Datos detectados</h2>
+                {% if parsed_fields %}
+                <ul class="list-group">
+                    <li class="list-group-item d-flex justify-content-between"><span>Nombre</span><strong>{{ parsed_fields.name }}</strong></li>
+                    <li class="list-group-item d-flex justify-content-between"><span>Categoría</span><strong>{{ parsed_fields.category }}</strong></li>
+                    <li class="list-group-item d-flex justify-content-between"><span>Precio</span><strong>{{ parsed_fields.price }}</strong></li>
+                    <li class="list-group-item d-flex justify-content-between"><span>Stock</span><strong>{{ parsed_fields.stock }}</strong></li>
+                </ul>
+                {% else %}
+                <p class="text-muted">Los campos procesados aparecerán en esta zona.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

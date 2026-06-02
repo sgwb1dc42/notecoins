@@ -1,0 +1,36 @@
+{
+  "name": "Flask + Jinja + HTML/CSS/JS (Python 3.12 Slim, Compose, Ready)",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "app",
+  "workspaceFolder": "/workspaces/app",
+  "shutdownAction": "stopCompose",
+  "forwardPorts": [5000],
+  "portsAttributes": {
+    "5000": { "label": "Flask" }
+  },
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "python.defaultInterpreterPath": "/usr/local/bin/python",
+        "python.terminal.activateEnvironment": false
+      },
+      "extensions": [
+        "github.copilot",
+        "github.copilot-chat",
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "ms-python.debugpy",
+        "ms-python.black-formatter",
+        "ms-python.isort",
+        "ms-python.flake8",
+        "esbenp.prettier-vscode",
+        "dbaeumer.vscode-eslint",
+        "samuelcolvin.jinjahtml",
+        "editorconfig.editorconfig",
+        "mechatroner.rainbow-csv",
+        "ms-vscode.live-server",
+        "openai.codex"
+      ]
+    }
+  }
+}

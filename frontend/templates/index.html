@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% from "_macros.html" import grade_circle %}
+{% block title %}NoteCoin — Marketplace de apuntes{% endblock %}
+{% block content %}
+
+<!-- Hero -->
+<section class="hero-section text-white">
+    <div class="container">
+        <div class="row align-items-center g-4">
+            <div class="col-lg-7">
+                <h1 class="display-5 fw-bold mb-2" style="color:#ffffff">
+                    <span style="color:var(--nc-gold)">◈</span> NoteCoin
+                </h1>
+                <p class="lead mb-4" style="color:rgba(255,255,255,.82)">
+                    Marketplace de apuntes universitarios con criptomoneda educativa.
+                    Compra y vende con monedas verificadas en blockchain.
+                </p>
+                {% if not current_user %}
+                <a href="{{ url_for('login') }}" class="btn btn-warning px-4 fw-bold">Empezar — 3 ◈ gratis</a>
+                {% else %}
+                <a href="{{ url_for('upload_note') }}" class="btn btn-warning px-4 fw-bold">Subir apunte</a>
+                {% endif %}
+            </div>
+            <div class="col-lg-5">
+                <div class="hero-stats-card p-4">
+                    <div class="row g-3 text-center">
+                        <div class="col-4">
+                            <div class="stat-number" style="color:#ffd700">{{ notes|length }}</div>
+                            <div class="stat-label">Apuntes</div>
+                        </div>
+                        <div class="col-4">
+                            <div class="stat-number" style="color:#ffffff">{{ subjects|length - 1 }}</div>
+                            <div class="stat-label">Materias</div>
+                        </div>
+                        <div class="col-4">
+                            <div class="stat-number" style="color:#4ade80" id="hero-pool">{{ "%.2f"|format(pool_amount) }}</div>
+                            <div class="stat-label">Pool ◈</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Filters + search -->
+<section class="container py-4">
+    <form method="get" action="{{ url_for('index') }}">
+        {% if query %}<input type="hidden" name="q" value="{{ query }}">{% endif %}
+        <div class="d-flex flex-wrap gap-2 mb-4">
+            <a href="{{ url_for('index', q=query) }}"
+               class="btn btn-sm {% if not subject_filter %}btn-dark{% else %}btn-outline-secondary{% endif %}">
+               Todos
+            </a>
+            {% for subj in subjects %}
+            {% set meta = subject_meta[subj] %}
+            <a href="{{ url_for('index', subject=subj, q=query) }}"
+               class="btn btn-sm {% if subject_filter == subj %}btn-dark{% else %}btn-outline-secondary{% endif %}">
+               {{ meta.icon }} {{ subj }}
+            </a>
+            {% endfor %}
+        </div>
+    </form>
+
+    {% if notes %}
+    <div class="row g-4">
+        {% for note in notes %}
+        {% set meta = subject_meta.get(note.subject, {"code":"otr","icon":"◎"}) %}
+        <div class="col-md-6 col-lg-4">
+            <a href="{{ url_for('note_detail', note_id=note.id) }}" class="text-decoration-none" style="color:inherit">
+                <div class="card note-card h-100 border-0 shadow-sm">
+                    <div class="note-subject-banner subject-{{ meta.code }}">
+                        {{ meta.icon }}
+                    </div>
+                    <div class="card-body">
+                        <span class="badge badge-{{ meta.code }} mb-2">{{ note.subject }}</span>
+                        <h5 class="card-title fw-bold text-dark mb-1">{{ note.title }}</h5>
+                        {% if note.description %}
+                        <p class="card-text text-muted small mb-2">{{ note.description[:80] }}{% if note.description|length > 80 %}…{% endif %}</p>
+                        {% endif %}
+                        <div class="seller-meta d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center gap-2">
+                                {{ grade_circle(note.grade) }}
+                                <div>
+                                    <div class="small fw-semibold text-dark">{{ note.owner_name }}</div>
+                                    <div class="small text-muted">
+                                        {% for i in range(1, 6) %}<span class="{% if i <= note.avg_rating %}star-full{% else %}star-empty{% endif %}" style="font-size:.7rem">★</span>{% endfor %}
+                                        <span class="text-muted" style="font-size:.7rem">({{ note.rating_count }})</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <span class="price-badge">{{ note.price }} ◈</span>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-5 text-muted">
+        <div style="font-size:3rem">◎</div>
+        <p class="mt-2">No hay apuntes{% if subject_filter %} en esta asignatura{% endif %}{% if query %} para "{{ query }}"{% endif %}.</p>
+        {% if current_user %}<a href="{{ url_for('upload_note') }}" class="btn btn-primary">Sube el primero</a>{% endif %}
+    </div>
+    {% endif %}
+</section>
+{% endblock %}
